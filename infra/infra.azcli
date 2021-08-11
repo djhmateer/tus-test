@@ -113,7 +113,7 @@ az vm run-command invoke \
     -g ${rg} \
     -n ${vmname} \
     --command-id RunShellScript \
-    --scripts @create-kestrel.sh
+    --scripts @create-kestrel-service.sh
 
 # gets .NET, clones source code, does a release build, starts systemd kestrel service
 # systemd reads from file created on the vm above

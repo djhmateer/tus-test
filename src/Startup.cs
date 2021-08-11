@@ -109,8 +109,8 @@ namespace TusTest
             return new DefaultTusConfiguration
             {
                 UrlPath = "/files",
-                Store = new TusDiskStore(@"C:\tusfiles\"),
-                //Store = new TusDiskStore(tempPath),
+                //Store = new TusDiskStore(@"C:\tusfiles\"),
+                Store = new TusDiskStore(tempPath),
                 MetadataParsingStrategy = MetadataParsingStrategy.AllowEmptyValues,
                 Events = new Events
                 {
