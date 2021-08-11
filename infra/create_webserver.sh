@@ -14,7 +14,10 @@ sudo cp /home/dave/20auto-upgrades /etc/apt/apt.conf.d/20auto-upgrades
 
 # go with newer apt which gets dependency updates too (like linux-azure)
 sudo apt update -y
-sudo apt upgrade -y
+
+# am tracking a problem when after a reboot, can't get to port 80
+# and it isn't ufw
+# sudo apt upgrade -y
   
 # Install .NET 5 on Ubutu 20.04 LTS
 wget https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
