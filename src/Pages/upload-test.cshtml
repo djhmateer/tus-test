@@ -1,5 +1,5 @@
 ﻿@page
-@model IndexModel
+@model UploadTestModel
 @{
     Layout = "";
 }
@@ -9,7 +9,7 @@
     <meta charset="UTF-8">
     <title>tus-js-client demo - File Upload</title>
     <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css" rel="stylesheet">
-    <link href="./css/demo.css" rel="stylesheet" media="screen" asp-append-version="true">
+    <link href="./css/upload-test.css" rel="stylesheet" media="screen" asp-append-version="true">
 </head>
 <body>
     <div class="container">
@@ -35,6 +35,10 @@
         </div>
 
         <br>
+        
+        <p>https://tusd.tusdemo.net/files/</p>
+        <p>https://localhost:44381/files/  (IIS)</p>
+        <p>https://localhost:5001/files/ (Kestrel)</p>
 
         <table>
             <tr>
@@ -44,7 +48,7 @@
                     </label>
                 </td>
                 <td>
-                    <input type="text" id="endpoint" name="endpoint" value="https://tusd.tusdemo.net/files/">
+                    <input type="text" id="endpoint" name="endpoint" value="https://localhost:5001/files/">
                 </td>
             </tr>
             <tr>
@@ -97,7 +101,7 @@
 </body>
 
 <script src="~/node_modules/tus-js-client/dist/tus.js" asp-append-version="true"></script>
-<script src="~/js/demo.js" asp-append-version="true"></script>
+<script src="~/js/upload-test.js" asp-append-version="true"></script>
 </html>
 
 

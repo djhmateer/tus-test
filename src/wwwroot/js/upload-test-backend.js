@@ -70,6 +70,16 @@ function onTusProgress(bytesUploaded, bytesTotal) {
 function onTusSuccess() {
     downloadLink.innerHTML = '<a href="' + upload.url + '">Download ' + upload.file.name + '</a>';
     enableUpload();
+    //var message2 = document.getElementById('processingMessage');
+    //message2.removeAttribute('hidden');
+
+    // https://stackoverflow.com/questions/503093/how-do-i-redirect-to-another-webpage
+    // similar behavior as an HTTP redirect ie don't want in browser history
+    //window.location.replace("http://stackoverflow.com");
+
+    // /files/7076cd9ed5474bbe8fd69a3ac2c62fae
+    //var foo = upload.url.replace('/files/', '')
+    //window.location.replace("/face-search-go?f=" + foo);
 }
 
 function setProgressTest(text) {

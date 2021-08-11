@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -13,6 +14,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
+using Serilog;
 using tusdotnet;
 using tusdotnet.Helpers;
 using tusdotnet.Models;
@@ -95,61 +97,65 @@ namespace TusTest
 
         private DefaultTusConfiguration CreateTusConfiguration(IServiceProvider serviceProvider)
         {
-            var logger = serviceProvider.GetService<ILoggerFactory>().CreateLogger<Startup>();
+            //var logger = serviceProvider.GetService<ILoggerFactory>().CreateLogger<Startup>();
 
             // Change the value of EnableOnAuthorize in appsettings.json to enable or disable
             // the new authorization event.
-            var enableAuthorize = Configuration.GetValue<bool>("EnableOnAuthorize");
+            //var enableAuthorize = Configuration.GetValue<bool>("EnableOnAuthorize");
+
+            var tempPath = Path.GetTempPath();
+            Log.Information($"temp path is {tempPath}");
 
             return new DefaultTusConfiguration
             {
                 UrlPath = "/files",
                 Store = new TusDiskStore(@"C:\tusfiles\"),
+                //Store = new TusDiskStore(tempPath),
                 MetadataParsingStrategy = MetadataParsingStrategy.AllowEmptyValues,
                 Events = new Events
                 {
                     OnAuthorizeAsync = ctx =>
                     {
-                        if (!enableAuthorize)
-                            return Task.CompletedTask;
+                        //if (!enableAuthorize)
+                        //    return Task.CompletedTask;
 
-                        if (!ctx.HttpContext.User.Identity.IsAuthenticated)
-                        {
-                            ctx.HttpContext.Response.Headers.Add("WWW-Authenticate", new StringValues("Basic realm=tusdotnet-test-netcoreapp2.2"));
-                            ctx.FailRequest(HttpStatusCode.Unauthorized);
-                            return Task.CompletedTask;
-                        }
+                        //if (!ctx.HttpContext.User.Identity.IsAuthenticated)
+                        //{
+                        //    ctx.HttpContext.Response.Headers.Add("WWW-Authenticate", new StringValues("Basic realm=tusdotnet-test-netcoreapp2.2"));
+                        //    ctx.FailRequest(HttpStatusCode.Unauthorized);
+                        //    return Task.CompletedTask;
+                        //}
 
-                        if (ctx.HttpContext.User.Identity.Name != "test")
-                        {
-                            ctx.FailRequest(HttpStatusCode.Forbidden, "'test' is the only allowed user");
-                            return Task.CompletedTask;
-                        }
+                        //if (ctx.HttpContext.User.Identity.Name != "test")
+                        //{
+                        //    ctx.FailRequest(HttpStatusCode.Forbidden, "'test' is the only allowed user");
+                        //    return Task.CompletedTask;
+                        //}
 
-                        // Do other verification on the user; claims, roles, etc.
+                        //// Do other verification on the user; claims, roles, etc.
 
-                        // Verify different things depending on the intent of the request.
-                        // E.g.:
-                        //   Does the file about to be written belong to this user?
-                        //   Is the current user allowed to create new files or have they reached their quota?
-                        //   etc etc
-                        switch (ctx.Intent)
-                        {
-                            case IntentType.CreateFile:
-                                break;
-                            case IntentType.ConcatenateFiles:
-                                break;
-                            case IntentType.WriteFile:
-                                break;
-                            case IntentType.DeleteFile:
-                                break;
-                            case IntentType.GetFileInfo:
-                                break;
-                            case IntentType.GetOptions:
-                                break;
-                            default:
-                                break;
-                        }
+                        //// Verify different things depending on the intent of the request.
+                        //// E.g.:
+                        ////   Does the file about to be written belong to this user?
+                        ////   Is the current user allowed to create new files or have they reached their quota?
+                        ////   etc etc
+                        //switch (ctx.Intent)
+                        //{
+                        //    case IntentType.CreateFile:
+                        //        break;
+                        //    case IntentType.ConcatenateFiles:
+                        //        break;
+                        //    case IntentType.WriteFile:
+                        //        break;
+                        //    case IntentType.DeleteFile:
+                        //        break;
+                        //    case IntentType.GetFileInfo:
+                        //        break;
+                        //    case IntentType.GetOptions:
+                        //        break;
+                        //    default:
+                        //        break;
+                        //}
 
                         return Task.CompletedTask;
                     },
@@ -163,21 +169,36 @@ namespace TusTest
                             return Task.CompletedTask;
                         }
 
-                        if (!ctx.Metadata.ContainsKey("name") || ctx.Metadata["name"].HasEmptyValue)
+                        // todo don't know why upload-test fails here
+                        //if (!ctx.Metadata.ContainsKey("name") || ctx.Metadata["name"].HasEmptyValue)
+                        //{
+                        //    ctx.FailRequest("name metadata must be specified. ");
+                        //}
+
+                        //if (!ctx.Metadata.ContainsKey("contentType") || ctx.Metadata["contentType"].HasEmptyValue)
+                        //{
+                        //    ctx.FailRequest("contentType metadata must be specified. ");
+                        //}
+
+                        // change name to filename
+                        // change contentType to filetype
+
+                        // okay can get the orig filename here
+                        if (!ctx.Metadata.ContainsKey("filename") || ctx.Metadata["filename"].HasEmptyValue)
                         {
-                            ctx.FailRequest("name metadata must be specified. ");
+                            ctx.FailRequest("filename metadata must be specified. ");
                         }
 
-                        if (!ctx.Metadata.ContainsKey("contentType") || ctx.Metadata["contentType"].HasEmptyValue)
+                        if (!ctx.Metadata.ContainsKey("filetype") || ctx.Metadata["filetype"].HasEmptyValue)
                         {
-                            ctx.FailRequest("contentType metadata must be specified. ");
+                            ctx.FailRequest("filetype metadata must be specified. ");
                         }
 
                         return Task.CompletedTask;
                     },
                     OnCreateCompleteAsync = ctx =>
                     {
-                        logger.LogInformation($"Created file {ctx.FileId} using {ctx.Store.GetType().FullName}");
+                        Log.Information($"Created file {ctx.FileId} using {ctx.Store.GetType().FullName}");
                         return Task.CompletedTask;
                     },
                     OnBeforeDeleteAsync = ctx =>
@@ -187,12 +208,13 @@ namespace TusTest
                     },
                     OnDeleteCompleteAsync = ctx =>
                     {
-                        logger.LogInformation($"Deleted file {ctx.FileId} using {ctx.Store.GetType().FullName}");
+                        Log.Information($"Deleted file {ctx.FileId} using {ctx.Store.GetType().FullName}");
                         return Task.CompletedTask;
                     },
                     OnFileCompleteAsync = ctx =>
                     {
-                        logger.LogInformation($"Upload of {ctx.FileId} completed using {ctx.Store.GetType().FullName}");
+                        Log.Information($"Upload of {ctx.FileId} completed using {ctx.Store.GetType().FullName}");
+                        Log.Information($"");
                         // If the store implements ITusReadableStore one could access the completed file here.
                         // The default TusDiskStore implements this interface:
                         //var file = await ctx.GetFileAsync();
