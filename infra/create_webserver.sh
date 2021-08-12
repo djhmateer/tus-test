@@ -64,8 +64,5 @@ sudo systemctl enable kestrel.service
 # start the Kestrel web app using systemd using kestrel.service text files
 sudo systemctl start kestrel.service
 
-# redirect 5000 to port 80 internally
-# sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 5000
-
 # sudo snap install bpytop
 sudo reboot now
