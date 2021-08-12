@@ -65,4 +65,3 @@ sudo systemctl enable kestrel.service
 sudo systemctl start kestrel.service
 
 # sudo snap install bpytop
-# sudo reboot now
