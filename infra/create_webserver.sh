@@ -1,6 +1,8 @@
 #!/bin/sh
 
-# disable auto upgrades by apt
+# Creates Ubuntu Webserver to run TusTest
+
+# Disable auto upgrades by apt
 cd /home/dave
 
 cat <<EOT >> 20auto-upgrades
@@ -14,15 +16,16 @@ sudo cp /home/dave/20auto-upgrades /etc/apt/apt.conf.d/20auto-upgrades
 
 # go with newer apt which gets dependency updates too (like linux-azure)
 sudo apt update -y
+sudo apt upgrade -y
 
-# am tracking a problem when after a reboot, can't get to port 80
-# and it isn't ufw
-# sudo apt upgrade -y
-  
-# Install .NET 5 on Ubutu 20.04 LTS
+# Install .NET 5 SDK on Ubutu 20.04 LTS
 wget https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
 sudo dpkg -i packages-microsoft-prod.deb
 
+# nginx
+sudo apt-get install nginx -y
+
+# dotnet
 sudo apt-get update; \
   sudo apt-get install -y apt-transport-https && \
   sudo apt-get update && \
@@ -35,6 +38,10 @@ sudo mkdir /var/www
 sudo mkdir /gitsource
 cd /gitsource
 sudo git clone https://github.com/djhmateer/tus-test .
+
+# nginx config
+sudo cp /gitsource/infra/nginx.conf /etc/nginx/sites-available/default
+sudo nginx -s reload
 
 # compile and publish the web app
 sudo dotnet publish /gitsource/src --configuration Release --output /var/www
@@ -58,6 +65,6 @@ sudo systemctl enable kestrel.service
 sudo systemctl start kestrel.service
 
 # redirect 5000 to port 80 internally
-sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 5000
+# sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 5000
 
 # sudo snap install bpytop

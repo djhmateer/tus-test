@@ -229,6 +229,5 @@ namespace TusTest
                 Expiration = new AbsoluteExpiration(TimeSpan.FromHours(3))
             };
         }
-
     }
 }
