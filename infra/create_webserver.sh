@@ -23,7 +23,7 @@ wget https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.
 sudo dpkg -i packages-microsoft-prod.deb
 
 # nginx
-sudo apt-get install nginx -y
+sudo apt install nginx -y
 
 # dotnet
 sudo apt-get update; \
